@@ -1,4 +1,3 @@
-import React from "react";
 import { SourceArticle } from "@/lib/api";
 
 interface ArticlesProps {

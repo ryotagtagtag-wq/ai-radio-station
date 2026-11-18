@@ -1,5 +1,4 @@
-import React from "react";
-import { ScriptSegment } from "@/lib/api";
+import { ScriptSegment, ScriptLine } from "@/lib/api";
 
 interface TranscriptProps {
   script: ScriptSegment[] | undefined;
@@ -18,7 +17,7 @@ export function Transcript({ script }: TranscriptProps) {
             {seg.name}
           </div>
           <div className="space-y-1 text-sm text-gray-700">
-            {seg.lines.map((line, i) => (
+            {seg.lines.map((line: ScriptLine, i: number) => (
               <div key={i} className="flex gap-2">
                 <span className="w-10 text-xs font-bold text-gray-500">{line.speaker}</span>
                 <span>{line.text}</span>

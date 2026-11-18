@@ -1,13 +1,14 @@
-import React from "react";
 import { CatalogJson } from "@/lib/api";
 
 interface LetterButtonProps {
   showId: string;
-  letters: CatalogJson["letters"];
+  letters: NonNullable<CatalogJson["letters"]>;
 }
 
 export function LetterButton({ showId, letters }: LetterButtonProps) {
-  const letter = letters?.find((l) => l.show_id === showId);
+  const letter = letters.find(
+    (l: { show_id: string; issue_url: string }) => l.show_id === showId,
+  );
 
   if (!letter) {
     return (

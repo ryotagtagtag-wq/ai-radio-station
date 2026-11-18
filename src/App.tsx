@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useCatalog } from "@/hooks/useCatalog";
 import { ShowTabs } from "@/components/ShowTabs";
 import { EpisodeList } from "@/components/EpisodeList";
@@ -17,7 +17,7 @@ export default function App() {
   const shows: Show[] = useMemo(() => (catalog ? catalog.shows : []), [catalog]);
 
   // デフォルトで最初の番組を選択
-  React.useEffect(() => {
+  useEffect(() => {
     if (shows.length > 0 && !activeShowId) {
       setActiveShowId(shows[0].show_id);
     }

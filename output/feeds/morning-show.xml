@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>morning-show</title>
+    <link>./</link>
+    <description>morning-show ポッドキャストフィード</description>
+    <language>ja-JP</language>
+      <item>
+    <title>2026年11月18日 モーニングAIラジオ</title>
+    <description>モーニングAIラジオ の本日放送分です。</description>
+    <pubDate>Wed, 18 Nov 2026 08:27:46 GMT</pubDate>
+    <enclosure url="./audio/morning-show/20261118-082746-morning-show.mp3" length="0" type="audio/mpeg"/>
+    <guid>20261118-082746-morning-show</guid>
+  </item>
+  </channel>
+</rss>

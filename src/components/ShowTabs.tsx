@@ -1,4 +1,3 @@
-import React from "react";
 import { Show } from "@/lib/api";
 
 interface ShowTabsProps {

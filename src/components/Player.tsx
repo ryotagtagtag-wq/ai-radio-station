@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  ChangeEvent,
+} from "react";
 import { Episode } from "@/lib/api";
 
 interface PlayerProps {
@@ -12,7 +18,6 @@ export function Player({ episode, isActive }: PlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [volume, setVolume] = useState(1);
 
   const positionKey = useRef<string | null>(null);
 
@@ -143,7 +148,7 @@ export function Player({ episode, isActive }: PlayerProps) {
 
         <select
           value={speed}
-          onChange={(e) => {
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
             const v = parseFloat(e.target.value);
             setSpeed(v);
             if (audioRef.current) audioRef.current.playbackRate = v;
@@ -167,7 +172,7 @@ export function Player({ episode, isActive }: PlayerProps) {
           min="0"
           max={duration || 1}
           value={currentTime}
-          onChange={(e) => {
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
             const v = parseFloat(e.target.value);
             if (audioRef.current) audioRef.current.currentTime = v;
             setCurrentTime(v);

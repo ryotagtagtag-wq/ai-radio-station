@@ -1,0 +1,17 @@
+{
+  "name": "AI パーソナルラジオ局",
+  "short_name": "AI Radio",
+  "description": "GitHub Actions で自動生成・GitHub Pages で配信されるAIパーソナルラジオ局",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "100x100",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

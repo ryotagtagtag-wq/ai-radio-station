@@ -1,5 +1,4 @@
-import React from "react";
-import { Episode, Show } from "@/lib/api";
+import { Show } from "@/lib/api";
 
 interface EpisodeListProps {
   show: Show | null;

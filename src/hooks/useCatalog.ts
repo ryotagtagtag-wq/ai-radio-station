@@ -9,10 +9,10 @@ export function useCatalog() {
   useEffect(() => {
     let cancelled = false;
     fetchCatalog()
-      .then((data) => {
+      .then((data: CatalogJson) => {
         if (!cancelled) setCatalog(data);
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         if (!cancelled) setError(err.message);
       })
       .finally(() => {
