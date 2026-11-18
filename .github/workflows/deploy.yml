@@ -30,11 +30,9 @@ jobs:
       - name: 依存パッケージインストール
         run: npm ci
 
-      - name: Vite ビルド (GitHub Pages サブパス)
+      - name: Vite ビルド (ベースパス ./)
         run: |
-          REPO_NAME="${{ github.repository }}"
-          REPO_NAME="${REPO_NAME#*/}"
-          VITE_BASE="/${REPO_NAME}/" VITE_GITHUB_REPO="${{ github.repository }}" npm run build
+          VITE_BASE="./" VITE_GITHUB_REPO="${{ github.repository }}" npm run build
 
       - name: アップロード artifact
         uses: actions/upload-pages-artifact@v3
