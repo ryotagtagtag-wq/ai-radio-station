@@ -34,6 +34,10 @@ jobs:
         run: |
           VITE_BASE="./" VITE_GITHUB_REPO="${{ github.repository }}" npm run build
 
+      - name: output/ を dist/ にコピー (catalog.json, feeds, audio)
+        run: |
+          cp -r output/* dist/
+
       - name: アップロード artifact
         uses: actions/upload-pages-artifact@v3
         with:
