@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>evening-show</title>
+    <link>./</link>
+    <description>evening-show ポッドキャストフィード</description>
+    <language>ja-JP</language>
+      <item>
+    <title>2026年11月18日 イブニングAIラジオ</title>
+    <description>イブニングAIラジオ の本日放送分です。</description>
+    <pubDate>Wed, 18 Nov 2026 22:13:21 GMT</pubDate>
+    <enclosure url="./audio/evening-show/20261118-221321-evening-show.mp3" length="0" type="audio/mpeg"/>
+    <guid>20261118-221321-evening-show</guid>
+  </item>
+  </channel>
+</rss>

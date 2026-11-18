@@ -1,0 +1,20 @@
+show_id: evening-show
+title: イブニングAIラジオ
+description: その日の出来事をAIパーソナリティが振り返る夕方のラジオ番組です。
+rss_feeds:
+  - https://example.com/rss
+personalities:
+  - name: ソラ
+    voice_id: ja-JP-NanamiNeural
+    persona: 親しみやすいキャスター。その日の出来事を軽く振り返る雑談を担当。
+  - name: ルナ
+    voice_id: ja-JP-AoiNeural
+    persona: 落ち着いたナビゲーター。ニュース解説とお便りコーナーを担当。
+talk_ratio: 0.4
+bgm:
+  file: assets/bgm/evening.mp3
+  volume_db: -18
+sfx:
+  jingle: assets/sfx/evening-jingle.mp3
+schedule:
+  cron: "0 18 * * *"

@@ -2,12 +2,15 @@ name: AI Radio Generate
 
 on:
   schedule:
-    - cron: "0 7 * * *"   # モーニング番組 (毎日 07:00 UTC)
+    # モーニング番組: 毎日 07:00 UTC
+    - cron: "0 7 * * *"
+    # イブニング番組: 毎日 18:00 UTC
+    - cron: "0 18 * * *"
   workflow_dispatch:
     inputs:
-      show_id:
-        description: "生成対象の番組ID (shows/*.yaml の拡張子抜き)"
-        required: true
+      show_ids:
+        description: "生成対象の番組ID（カンマ区切り、例: morning-show,evening-show）"
+        required: false
         default: "morning-show"
       base_path:
         description: "フロントエンド連携用ベースパス (./ または /<repo>/)"
@@ -33,11 +36,28 @@ jobs:
         run: |
           pip install -r backend/requirements.txt
 
-      - name: 生成パイプライン実行
+      - name: 生成対象番組一覧を決定
+        id: matrix
         run: |
-          python backend/main.py \
-            --show-id "${{ github.event.inputs.show_id || 'morning-show' }}" \
-            --base-path "${{ github.event.inputs.base_path || './' }}"
+          # workflow_dispatch 時は入力値、schedule 時は cron から番組を決定
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            # どの cron で起動したかは job 内で個別に判定するため、ここでは全番組を対象とする
+            echo "show_ids=morning-show,evening-show" >> $GITHUB_OUTPUT
+          else
+            echo "show_ids=${{ github.event.inputs.show_ids }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 生成パイプライン実行（各番組）
+        run: |
+          IFS=',' read -ra IDS <<< "${{ steps.matrix.outputs.show_ids }}"
+          for show_id in "${IDS[@]}"; do
+            show_id=$(echo "$show_id" | xargs)  # 前後空白除去
+            echo "=== 生成開始: $show_id ==="
+            python backend/main.py \
+              --show-id "$show_id" \
+              --base-path "${{ github.event.inputs.base_path || './' }}"
+            echo "=== 生成完了: $show_id ==="
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,5 +66,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add output/ data/
-          git commit -m "chore: generate radio episode for ${{ github.event.inputs.show_id || 'morning-show' }}" || true
+          git commit -m "chore: generate radio episodes for ${{ steps.matrix.outputs.show_ids }}" || true
           git push

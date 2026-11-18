@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
-"""AI パーソナルラジオ局 - 音声・データ生成パイプライン (Phase 1 スケルトン)
+"""AI パーソナルラジオ局 - 音声・データ生成パイプライン (Phase 2)
 
-Phase 1 ゴール:
-  - workflow_dispatch / cron で指定 show_id の番組を生成
-  - output/audio/<show_id>/ に MP3 を出力
-  - output/feeds/<show_id>.xml に Podcast 互換 RSS を出力
-  - output/catalog.json にフロントエンド連携用メタデータを出力
-
-本ファイルは Phase 1 の骨格であり、Gemini / edge-tts / ffmpeg の実際の呼び出しは
-スケルトン（ダミー生成）で実装する。後続フェーズで本実装に置き換える。
+Phase 2 ゴール:
+  - 複数 shows/*.yaml 定義に対応
+  - cron 複数時間帯で異なる番組を自動生成
+  - data/memory による記憶引き継ぎ（carryover_topics をプロンプトに注入）
+  - GitHub Issues お便り機能（letter ラベル + show_id ラベル付き Open Issue を取得）
+  - お便りコーナーセグメントを台本に追加
+  - 生成完了後、対象 Issue へコメント投稿して Close
+  - catalog.json に letters 情報を含め、フロントエンドのお便りボタンに連携
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
+
+from letter import fetch_letters, post_comment, close_issue, build_comment_body
 
 # --- パス定義 ---
 ROOT = Path(__file__).resolve().parent.parent
@@ -81,7 +84,7 @@ def save_memory(show_id: str, memory: dict) -> None:
 
 
 def fetch_rss_dummy(show: dict) -> list[dict]:
-    """Phase 1 ダミー: RSS 取得の代わりに固定の記事候補を返す。"""
+    """Phase 2 ダミー: RSS 取得の代わりに固定の記事候補を返す。"""
     return [
         {
             "url": f"https://example.com/article/{i}",
@@ -95,43 +98,126 @@ def fetch_rss_dummy(show: dict) -> list[dict]:
 
 def dedup_articles(articles: list[dict], history: list[str]) -> list[dict]:
     seen = set(history)
-    new = [a for a in articles if a["url"] not in seen]
-    return new
+    return [a for a in articles if a["url"] not in seen]
 
 
-def generate_script_dummy(show: dict, articles: list[dict], memory: dict) -> dict:
-    """Phase 1 ダミー: Gemini Structured Outputs の代わりに固定台本JSONを生成。"""
+def generate_script_dummy(
+    show: dict,
+    articles: list[dict],
+    memory: dict,
+    letters: list[dict],
+) -> dict:
+    """Phase 2 ダミー: Gemini Structured Outputs の代わりに固定台本JSONを生成。
+
+    memory の carryover_topics をオープニングに注入し、
+    letters をお便りコーナーセグメントに組み込む。
+    """
     now = datetime.now(timezone.utc)
     episode_id = now.strftime("%Y%m%d-%H%M%S") + "-" + show["show_id"]
 
-    lines = []
     p1, p2 = show["personalities"][0]["name"], show["personalities"][1]["name"]
 
-    lines.append({"speaker": p1, "text": f"おはようございます、{p1}です。", "pause_ms": 400})
-    lines.append({"speaker": p2, "text": f"そして {p2} です。{show['title']} へようこそ。", "pause_ms": 400})
+    lines: list[dict] = []
 
+    # --- オープニング雑談（記憶の引き継ぎを注入）---
+    carryover = memory.get("carryover_topics", [])
+    if carryover:
+        topics_text = "、".join(carryover)
+        lines.append(
+            {
+                "speaker": p1,
+                "text": f"おはようございます、{p1}です。前回お伝えした「{topics_text}」について、今日は続きをお届けします。",
+                "pause_ms": 500,
+            }
+        )
+    else:
+        lines.append(
+            {"speaker": p1, "text": f"おはようございます、{p1}です。", "pause_ms": 400}
+        )
+    lines.append(
+        {
+            "speaker": p2,
+            "text": f"そして {p2} です。{show['title']} へようこそ。",
+            "pause_ms": 400,
+        }
+    )
+
+    # --- ニュース解説（掛け合い）---
     for a in articles[:3]:
-        lines.append({"speaker": p1, "text": f"まずはこちらのニュースです。{a['title']}", "pause_ms": 300})
-        lines.append({"speaker": p2, "text": a["summary"], "pause_ms": 300})
+        lines.append(
+            {
+                "speaker": p1,
+                "text": f"まずはこちらのニュースです。{a['title']}",
+                "pause_ms": 300,
+            }
+        )
+        lines.append(
+            {"speaker": p2, "text": a["summary"], "pause_ms": 300}
+        )
 
-    lines.append({"speaker": p1, "text": "本日はここまで。お便りありがとうございました。", "pause_ms": 500})
-    lines.append({"speaker": p2, "text": "また明日お会いしましょう。", "pause_ms": 500})
+    # --- お便りコーナー ---
+    if letters:
+        lines.append(
+            {"speaker": p2, "text": "それでは、お便りコーナーです。", "pause_ms": 400}
+        )
+        for letter in letters[:3]:
+            issue_number = letter.get("number", "?")
+            letter_title = letter.get("title", "(件名なし)")
+            lines.append(
+                {
+                    "speaker": p1,
+                    "text": f"Issue #{issue_number} より、{letter_title} というお便りをいただきました。",
+                    "pause_ms": 300,
+                    "sfx": "letter",
+                }
+            )
+            lines.append(
+                {
+                    "speaker": p2,
+                    "text": "ありがとうございます。さっそくご紹介します。",
+                    "pause_ms": 300,
+                }
+            )
+    else:
+        lines.append(
+            {
+                "speaker": p1,
+                "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
+                "pause_ms": 400,
+            }
+        )
+
+    # --- エンディング ---
+    lines.append(
+        {"speaker": p1, "text": "本日はここまで。ありがとうございました。", "pause_ms": 500}
+    )
+    lines.append(
+        {"speaker": p2, "text": "また明日お会いしましょう。", "pause_ms": 500}
+    )
 
     return {
         "show_id": show["show_id"],
         "episode_id": episode_id,
         "title": f"{now.strftime('%Y年%m月%d日')} {show['title']}",
-        "summary": memory.get("last_summary", "") or f"{show['title']} の本日放送分です。",
+        "summary": memory.get("last_summary", "")
+        or f"{show['title']} の本日放送分です。",
         "segments": [
             {
                 "id": "opening",
                 "name": "オープニング雑談",
-                "lines": lines[:2],
+                "lines": lines[: 2 + (1 if carryover else 0)],
             },
             {
                 "id": "news",
                 "name": "ニュース解説",
-                "lines": lines[2:-2],
+                "lines": lines[2 + (1 if carryover else 0) : -4 if letters else -2],
+            },
+            {
+                "id": "letter_corner",
+                "name": "お便りコーナー",
+                "lines": (
+                    lines[-4:-2] if letters else []
+                ),
             },
             {
                 "id": "ending",
@@ -140,11 +226,12 @@ def generate_script_dummy(show: dict, articles: list[dict], memory: dict) -> dic
             },
         ],
         "source_articles": articles,
+        "letters": letters,
     }
 
 
 def generate_dummy_mp3(output_path: Path, duration_sec: int = 10) -> None:
-    """Phase 1 ダミー: ffmpeg で無音 MP3 を生成。ffmpeg 未導入時は空ファイルを出力。"""
+    """Phase 2 ダミー: ffmpeg で無音 MP3 を生成。ffmpeg 未導入時は空ファイルを出力。"""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         subprocess.run(
@@ -167,7 +254,7 @@ def generate_dummy_mp3(output_path: Path, duration_sec: int = 10) -> None:
 
 
 def write_podcast_feed(show_id: str, episodes: list[dict], base_url: str) -> None:
-    """Phase 1: Podcast 互換 RSS (feeds/<show_id>.xml) を出力。"""
+    """Phase 2: Podcast 互換 RSS (feeds/<show_id>.xml) を出力。"""
     FEEDS_DIR.mkdir(parents=True, exist_ok=True)
     feed_path = FEEDS_DIR / f"{show_id}.xml"
 
@@ -196,33 +283,66 @@ def write_podcast_feed(show_id: str, episodes: list[dict], base_url: str) -> Non
     print(f"[OK] Podcast RSS 出力: {feed_path}")
 
 
-def write_catalog(show_id: str, episodes: list[dict], base_path: str) -> None:
-    """Phase 1: catalog.json を出力。"""
+def write_catalog(
+    show_id: str,
+    show: dict,
+    episodes: list[dict],
+    base_path: str,
+    letters: list[dict],
+) -> None:
+    """Phase 2: catalog.json を出力。letters 情報を含める。"""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    catalog = {
-        "updated_at": datetime.now(timezone.utc).isoformat(),
-        "base_path": base_path,
-        "shows": [
+    # 既存の catalog.json を読み込み、他番組の情報を保持する
+    catalog: dict = {}
+    if CATALOG_FILE.exists():
+        try:
+            catalog = json.loads(CATALOG_FILE.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            catalog = {}
+
+    catalog["updated_at"] = datetime.now(timezone.utc).isoformat()
+    catalog["base_path"] = base_path
+
+    # 当番組のエントリを構築（既存の shows から重複排除して上書き）
+    existing_shows = catalog.get("shows", [])
+    other_shows = [s for s in existing_shows if s.get("show_id") != show_id]
+
+    show_entry = {
+        "show_id": show_id,
+        "title": show.get("title", show_id),
+        "description": show.get("description", ""),
+        "feed_url": f"{base_path}feeds/{show_id}.xml",
+        "episodes": episodes,
+    }
+    catalog["shows"] = other_shows + [show_entry]
+
+    # letters 情報（番組ごとのお便り Issue 作成 URL）
+    letter_entries = []
+    for letter in letters:
+        letter_entries.append(
             {
                 "show_id": show_id,
-                "title": f"{show_id} 番組",
-                "description": "Phase 1 スケルトン番組",
-                "feed_url": f"{base_path}feeds/{show_id}.xml",
-                "episodes": episodes,
+                "issue_url": letter.get("html_url", ""),
             }
-        ],
-    }
-    CATALOG_FILE.write_text(json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8")
+        )
+    if letter_entries:
+        catalog["letters"] = letter_entries
+
+    CATALOG_FILE.write_text(
+        json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     print(f"[OK] catalog.json 出力: {CATALOG_FILE}")
 
 
 def rotate_episodes(show_id: str) -> None:
-    """Phase 1: 番組ごと最新 EPISODE_LIMIT 件より古い MP3 を削除。"""
+    """Phase 2: 番組ごと最新 EPISODE_LIMIT 件より古い MP3 を削除。"""
     show_audio_dir = AUDIO_DIR / show_id
     if not show_audio_dir.exists():
         return
-    mp3s = sorted(show_audio_dir.glob("*.mp3"), key=lambda p: p.stat().st_mtime, reverse=True)
+    mp3s = sorted(
+        show_audio_dir.glob("*.mp3"), key=lambda p: p.stat().st_mtime, reverse=True
+    )
     for old in mp3s[EPISODE_LIMIT:]:
         old.unlink()
         print(f"[ROTATE] 削除: {old}")
@@ -230,8 +350,16 @@ def rotate_episodes(show_id: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="AI パーソナルラジオ局 生成パイプライン")
-    parser.add_argument("--show-id", required=True, help="生成対象の番組ID (shows/*.yaml のファイル名拡張子抜き)")
-    parser.add_argument("--base-path", default="./", help="フロントエンド連携用ベースパス (./ または /<repo>/)")
+    parser.add_argument(
+        "--show-id",
+        required=True,
+        help="生成対象の番組ID (shows/*.yaml のファイル名拡張子抜き)",
+    )
+    parser.add_argument(
+        "--base-path",
+        default="./",
+        help="フロントエンド連携用ベースパス (./ または /<repo>/)",
+    )
     args = parser.parse_args()
 
     show = load_show(args.show_id)
@@ -240,12 +368,25 @@ def main() -> None:
     history = load_history()
     memory = load_memory(show_id)
 
-    # RSS 取得 + 重複排除
+    # --- お便り取得（GitHub Issues API）---
+    token = os.environ.get("GITHUB_TOKEN", "")
+    letters: list[dict] = []
+    if token:
+        try:
+            letters = fetch_letters(show_id, token)
+            print(f"[INFO] お便り Issue {len(letters)} 件を取得しました（{show_id}）")
+        except Exception as exc:
+            print(f"[WARN] お便り取得に失敗しました: {exc}", file=sys.stderr)
+            letters = []
+    else:
+        print("[INFO] GITHUB_TOKEN が未設定のためお便り取得をスキップします")
+
+    # --- RSS 取得 + 重複排除 ---
     articles = fetch_rss_dummy(show)
     new_articles = dedup_articles(articles, history)
 
-    # 台本生成（ダミー）
-    script = generate_script_dummy(show, new_articles, memory)
+    # --- 台本生成（memory の carryover_topics と letters を注入）---
+    script = generate_script_dummy(show, new_articles, memory, letters)
 
     # エピソードID・公開日時
     now = datetime.now(timezone.utc)
@@ -269,18 +410,44 @@ def main() -> None:
         "source_articles": script["source_articles"],
     }
 
-    # 履歴・記憶更新
+    # --- 履歴・記憶更新 ---
     new_urls = history + [a["url"] for a in new_articles]
     save_history(new_urls)
 
+    # carryover_topics の更新（今回のニュースタイトルを次回へ持ち越し）
+    next_carryover = [a["title"] for a in new_articles[:2]]
     memory["last_broadcast_at"] = published_at
     memory["last_summary"] = script["summary"]
+    memory["last_talk_topics"] = next_carryover
+    memory["carryover_topics"] = next_carryover
+    # 処理済みお便りIDを記録
+    processed_letter_ids = [l.get("number") for l in letters if l.get("number")]
+    memory["last_letter_ids"] = processed_letter_ids
     save_memory(show_id, memory)
 
-    # catalog.json / feed.xml 出力（現状は単一番組・単一エピソード）
+    # --- catalog.json / feed.xml 出力 ---
     episodes = [episode_record]
-    write_catalog(show_id, episodes, args.base_path)
+    write_catalog(show_id, show, episodes, args.base_path, letters)
     write_podcast_feed(show_id, episodes, args.base_path)
+
+    # --- お便り Issue へコメント投稿・Close ---
+    if token and letters:
+        for letter in letters:
+            issue_number = letter.get("number")
+            if not issue_number:
+                continue
+            try:
+                body = build_comment_body(
+                    show_id, episode_id, script["title"]
+                )
+                post_comment(issue_number, body, token)
+                close_issue(issue_number, token)
+                print(f"[INFO] Issue #{issue_number} にコメント投稿・Close 完了")
+            except Exception as exc:
+                print(
+                    f"[WARN] Issue #{issue_number} のフィードバックに失敗: {exc}",
+                    file=sys.stderr,
+                )
 
     # ローテーション
     rotate_episodes(show_id)

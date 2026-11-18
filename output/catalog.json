@@ -1,18 +1,18 @@
 {
-  "updated_at": "2026-11-18T08:27:46.957315+00:00",
+  "updated_at": "2026-11-18T22:13:21.298338+00:00",
   "base_path": "./",
   "shows": [
     {
       "show_id": "morning-show",
-      "title": "morning-show 番組",
-      "description": "Phase 1 スケルトン番組",
+      "title": "モーニングAIラジオ",
+      "description": "毎朝のニュースをAIパーソナリティがお届けするラジオ番組です。",
       "feed_url": "./feeds/morning-show.xml",
       "episodes": [
         {
-          "episode_id": "20261118-082746-morning-show",
+          "episode_id": "20261118-221313-morning-show",
           "title": "2026年11月18日 モーニングAIラジオ",
-          "audio_url": "audio/morning-show/20261118-082746-morning-show.mp3",
-          "published_at": "Wed, 18 Nov 2026 08:27:46 GMT",
+          "audio_url": "audio/morning-show/20261118-221313-morning-show.mp3",
+          "published_at": "Wed, 18 Nov 2026 22:13:13 GMT",
           "duration_sec": 10,
           "summary": "モーニングAIラジオ の本日放送分です。",
           "script": [
@@ -38,35 +38,15 @@
               "lines": [
                 {
                   "speaker": "アキラ",
-                  "text": "まずはこちらのニュースです。ダミー記事 1（モーニングAIラジオ）",
-                  "pause_ms": 300
-                },
-                {
-                  "speaker": "ミオ",
-                  "text": "これは モーニングAIラジオ 用のダミー記事要約 1 です。",
-                  "pause_ms": 300
-                },
-                {
-                  "speaker": "アキラ",
-                  "text": "まずはこちらのニュースです。ダミー記事 2（モーニングAIラジオ）",
-                  "pause_ms": 300
-                },
-                {
-                  "speaker": "ミオ",
-                  "text": "これは モーニングAIラジオ 用のダミー記事要約 2 です。",
-                  "pause_ms": 300
-                },
-                {
-                  "speaker": "アキラ",
-                  "text": "まずはこちらのニュースです。ダミー記事 3（モーニングAIラジオ）",
-                  "pause_ms": 300
-                },
-                {
-                  "speaker": "ミオ",
-                  "text": "これは モーニングAIラジオ 用のダミー記事要約 3 です。",
-                  "pause_ms": 300
+                  "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
+                  "pause_ms": 400
                 }
               ]
+            },
+            {
+              "id": "letter_corner",
+              "name": "お便りコーナー",
+              "lines": []
             },
             {
               "id": "ending",
@@ -74,7 +54,7 @@
               "lines": [
                 {
                   "speaker": "アキラ",
-                  "text": "本日はここまで。お便りありがとうございました。",
+                  "text": "本日はここまで。ありがとうございました。",
                   "pause_ms": 500
                 },
                 {
@@ -85,26 +65,74 @@
               ]
             }
           ],
-          "source_articles": [
+          "source_articles": []
+        }
+      ]
+    },
+    {
+      "show_id": "evening-show",
+      "title": "イブニングAIラジオ",
+      "description": "その日の出来事をAIパーソナリティが振り返る夕方のラジオ番組です。",
+      "feed_url": "./feeds/evening-show.xml",
+      "episodes": [
+        {
+          "episode_id": "20261118-221321-evening-show",
+          "title": "2026年11月18日 イブニングAIラジオ",
+          "audio_url": "audio/evening-show/20261118-221321-evening-show.mp3",
+          "published_at": "Wed, 18 Nov 2026 22:13:21 GMT",
+          "duration_sec": 10,
+          "summary": "イブニングAIラジオ の本日放送分です。",
+          "script": [
             {
-              "url": "https://example.com/article/1",
-              "title": "ダミー記事 1（モーニングAIラジオ）",
-              "summary": "これは モーニングAIラジオ 用のダミー記事要約 1 です。",
-              "rss_feed": "https://example.com/rss"
+              "id": "opening",
+              "name": "オープニング雑談",
+              "lines": [
+                {
+                  "speaker": "ソラ",
+                  "text": "おはようございます、ソラです。",
+                  "pause_ms": 400
+                },
+                {
+                  "speaker": "ルナ",
+                  "text": "そして ルナ です。イブニングAIラジオ へようこそ。",
+                  "pause_ms": 400
+                }
+              ]
             },
             {
-              "url": "https://example.com/article/2",
-              "title": "ダミー記事 2（モーニングAIラジオ）",
-              "summary": "これは モーニングAIラジオ 用のダミー記事要約 2 です。",
-              "rss_feed": "https://example.com/rss"
+              "id": "news",
+              "name": "ニュース解説",
+              "lines": [
+                {
+                  "speaker": "ソラ",
+                  "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
+                  "pause_ms": 400
+                }
+              ]
             },
             {
-              "url": "https://example.com/article/3",
-              "title": "ダミー記事 3（モーニングAIラジオ）",
-              "summary": "これは モーニングAIラジオ 用のダミー記事要約 3 です。",
-              "rss_feed": "https://example.com/rss"
+              "id": "letter_corner",
+              "name": "お便りコーナー",
+              "lines": []
+            },
+            {
+              "id": "ending",
+              "name": "エンディング",
+              "lines": [
+                {
+                  "speaker": "ソラ",
+                  "text": "本日はここまで。ありがとうございました。",
+                  "pause_ms": 500
+                },
+                {
+                  "speaker": "ルナ",
+                  "text": "また明日お会いしましょう。",
+                  "pause_ms": 500
+                }
+              ]
             }
-          ]
+          ],
+          "source_articles": []
         }
       ]
     }
