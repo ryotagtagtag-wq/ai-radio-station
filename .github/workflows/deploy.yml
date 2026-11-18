@@ -34,7 +34,7 @@ jobs:
         run: |
           REPO_NAME="${{ github.repository }}"
           REPO_NAME="${REPO_NAME#*/}"
-          VITE_BASE="/${REPO_NAME}/" npm run build
+          VITE_BASE="/${REPO_NAME}/" VITE_GITHUB_REPO="${{ github.repository }}" npm run build
 
       - name: アップロード artifact
         uses: actions/upload-pages-artifact@v3

@@ -60,6 +60,14 @@ jobs:
           done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Nextcloud Talk 通知（設定済み時のみ有効）
+          NEXTCLOUD_URL: ${{ secrets.NEXTCLOUD_URL }}
+          NEXTCLOUD_TALK_TOKEN: ${{ secrets.NEXTCLOUD_TALK_TOKEN }}
+          NEXTCLOUD_TALK_ROOM_ID: ${{ secrets.NEXTCLOUD_TALK_ROOM_ID }}
+          NEXTCLOUD_BOT_SECRET: ${{ secrets.NEXTCLOUD_BOT_SECRET }}
+          NEXTCLOUD_TALK_WEBHOOK_URL: ${{ secrets.NEXTCLOUD_TALK_WEBHOOK_URL }}
+          # PWA ページのベースURL（GitHub Pages）
+          PWA_BASE_URL: https://${{ github.repository_owner }}.github.io/${{ github.repository }}
 
       - name: 生成物をコミット・プッシュ
         run: |

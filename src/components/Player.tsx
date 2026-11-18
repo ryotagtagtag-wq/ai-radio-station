@@ -18,6 +18,7 @@ export function Player({ episode, isActive }: PlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [speed, setSpeed] = useState(1);
+  const [audioError, setAudioError] = useState<string | null>(null);
 
   const positionKey = useRef<string | null>(null);
 
@@ -78,12 +79,17 @@ export function Player({ episode, isActive }: PlayerProps) {
       setIsPlaying(false);
       if (positionKey.current) localStorage.removeItem(positionKey.current);
     };
+    const handleError = () => {
+      setAudioError(audio.error?.message ?? "音声の読み込みに失敗しました");
+      setIsPlaying(false);
+    };
 
     audio.addEventListener("play", handlePlay);
     audio.addEventListener("pause", handlePause);
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", handleError);
 
     return () => {
       audio.removeEventListener("play", handlePlay);
@@ -91,6 +97,7 @@ export function Player({ episode, isActive }: PlayerProps) {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
     };
   }, [episode]);
 
@@ -110,6 +117,24 @@ export function Player({ episode, isActive }: PlayerProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-400">
         エピソードを選択してください
+      </div>
+    );
+  }
+
+  if (audioError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-red-500 text-sm p-4 text-center bg-red-50 rounded-lg border border-red-100">
+        <div className="text-red-600 font-medium mb-2">⚠ 音声再生エラー</div>
+        <div>{audioError}</div>
+        <button
+          onClick={() => {
+            setAudioError(null);
+            if (audioRef.current) audioRef.current.load();
+          }}
+          className="mt-3 text-sm text-blue-600 hover:underline"
+        >
+          再試行
+        </button>
       </div>
     );
   }

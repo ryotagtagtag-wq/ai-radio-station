@@ -26,6 +26,7 @@ import yaml
 from audio import produce_final_audio
 from feed import write_podcast_feed
 from letter import fetch_letters, post_comment, close_issue, build_comment_body
+from nextcloud import notify
 
 # --- パス定義 ---
 ROOT = Path(__file__).resolve().parent.parent
@@ -425,6 +426,19 @@ def main() -> None:
 
     # ローテーション
     rotate_episodes(show_id)
+
+    # --- Nextcloud Talk 通知 ---
+    pwa_base_url = os.environ.get("PWA_BASE_URL", args.base_path)
+    pwa_url = pwa_base_url.rstrip("/") + "/"
+    audio_url = pwa_base_url.rstrip("/") + "/" + audio_url.lstrip("./")
+    notify(
+        show_id=show_id,
+        show_title=show.get("title", show_id),
+        episode_title=script["title"],
+        summary=script["summary"],
+        pwa_url=pwa_url,
+        audio_url=audio_url,
+    )
 
     print(f"[DONE] 番組 {show_id} エピソード {episode_id} を生成しました。")
 

@@ -58,3 +58,30 @@ export interface CatalogJson {
   shows: Show[];
   letters?: Array<{ show_id: string; issue_url: string }>;
 }
+
+/**
+ * GitHub Issue 作成URLを生成する（番組ラベル付き）。
+ * VITE_GITHUB_REPO 環境変数 (例: "owner/repo") が必要。
+ * 未設定時は空文字を返す（呼び出し側でボタン無効化を判断）。
+ */
+export function buildIssueUrl(showId: string, episodeTitle?: string): string {
+  const repo = import.meta.env.VITE_GITHUB_REPO;
+  if (!repo) {
+    return "";
+  }
+  const title = episodeTitle
+    ? `お便り: ${episodeTitle}`
+    : "お便り";
+  const encodedTitle = encodeURIComponent(title);
+  const labels = encodeURIComponent(`letter,${showId}`);
+  return `https://github.com/${repo}/new?labels=${labels}&title=${encodedTitle}`;
+}
+
+export function getRepoInfo(): { owner: string; name: string } | null {
+  const repo = import.meta.env.VITE_GITHUB_REPO;
+  if (!repo || !repo.includes("/")) {
+    return null;
+  }
+  const [owner, name] = repo.split("/", 2);
+  return { owner, name };
+}

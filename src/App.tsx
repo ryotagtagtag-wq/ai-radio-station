@@ -130,6 +130,7 @@ export default function App() {
                 <div className="mt-6">
                   <LetterButton
                     showId={activeShow.show_id}
+                    episodeTitle={activeEpisode?.title ?? undefined}
                     letters={catalog?.letters ?? []}
                   />
                 </div>
