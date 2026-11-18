@@ -1,16 +1,24 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+<?xml version='1.0' encoding='UTF-8'?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
   <channel>
-    <title>evening-show</title>
+    <title>イブニングAIラジオ</title>
     <link>./</link>
-    <description>evening-show ポッドキャストフィード</description>
+    <description>その日の出来事をAIパーソナリティが振り返る夕方のラジオ番組です。</description>
+    <docs>http://www.rssboard.org/rss-specification</docs>
+    <generator>python-feedgen</generator>
     <language>ja-JP</language>
-      <item>
-    <title>2026年11月18日 イブニングAIラジオ</title>
-    <description>イブニングAIラジオ の本日放送分です。</description>
-    <pubDate>Wed, 18 Nov 2026 22:13:21 GMT</pubDate>
-    <enclosure url="./audio/evening-show/20261118-221321-evening-show.mp3" length="0" type="audio/mpeg"/>
-    <guid>20261118-221321-evening-show</guid>
-  </item>
+    <lastBuildDate>Wed, 18 Nov 2026 22:18:24 +0000</lastBuildDate>
+    <itunes:author>AI パーソナルラジオ局</itunes:author>
+    <itunes:category text="ニュース"/>
+    <itunes:explicit>no</itunes:explicit>
+    <item>
+      <title>2026年11月18日 イブニングAIラジオ</title>
+      <description>イブニングAIラジオ の本日放送分です。</description>
+      <guid isPermaLink="false">20261118-221819-evening-show</guid>
+      <enclosure url="./audio/evening-show/20261118-221819-evening-show.mp3" length="0" type="audio/mpeg"/>
+      <pubDate>Wed, 18 Nov 2026 22:18:19 +0000</pubDate>
+      <itunes:duration>10</itunes:duration>
+      <itunes:explicit>no</itunes:explicit>
+    </item>
   </channel>
 </rss>

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""AI パーソナルラジオ局 - 音声・データ生成パイプライン (Phase 2)
+"""AI パーソナルラジオ局 - 音声・データ生成パイプライン (Phase 3)
 
-Phase 2 ゴール:
-  - 複数 shows/*.yaml 定義に対応
-  - cron 複数時間帯で異なる番組を自動生成
-  - data/memory による記憶引き継ぎ（carryover_topics をプロンプトに注入）
-  - GitHub Issues お便り機能（letter ラベル + show_id ラベル付き Open Issue を取得）
-  - お便りコーナーセグメントを台本に追加
-  - 生成完了後、対象 Issue へコメント投稿して Close
-  - catalog.json に letters 情報を含め、フロントエンドのお便りボタンに連携
+Phase 3 ゴール:
+  - edge-tts によるセリフごとの音声合成
+  - ffmpeg / pydub によるセリフ結合・間（pause）・SFX・ジングル挿入
+  - BGMダッキング（声がある部分で BGM 音量を下げる）
+  - BGM未配置時もエラーにならずフォールバックでスキップ
+  - Podcast 互換 RSS の本格生成 (feedgen)
+  - 最新10エピソードのローテーション（古いMP3自動削除）
 """
 
 from __future__ import annotations
@@ -16,13 +15,16 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
+import shutil
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
+from audio import produce_final_audio
+from feed import write_podcast_feed
 from letter import fetch_letters, post_comment, close_issue, build_comment_body
 
 # --- パス定義 ---
@@ -84,7 +86,10 @@ def save_memory(show_id: str, memory: dict) -> None:
 
 
 def fetch_rss_dummy(show: dict) -> list[dict]:
-    """Phase 2 ダミー: RSS 取得の代わりに固定の記事候補を返す。"""
+    """Phase 3 ダミー: RSS 取得の代わりに固定の記事候補を返す。
+
+    Phase 4 で実際の RSS 取得処理に置き換える予定。
+    """
     return [
         {
             "url": f"https://example.com/article/{i}",
@@ -107,7 +112,7 @@ def generate_script_dummy(
     memory: dict,
     letters: list[dict],
 ) -> dict:
-    """Phase 2 ダミー: Gemini Structured Outputs の代わりに固定台本JSONを生成。
+    """Phase 3 ダミー: Gemini Structured Outputs の代わりに固定台本JSONを生成。
 
     memory の carryover_topics をオープニングに注入し、
     letters をお便りコーナーセグメントに組み込む。
@@ -143,6 +148,7 @@ def generate_script_dummy(
     )
 
     # --- ニュース解説（掛け合い）---
+    news_start = len(lines)
     for a in articles[:3]:
         lines.append(
             {
@@ -156,6 +162,7 @@ def generate_script_dummy(
         )
 
     # --- お便りコーナー ---
+    letter_start = len(lines)
     if letters:
         lines.append(
             {"speaker": p2, "text": "それでは、お便りコーナーです。", "pause_ms": 400}
@@ -195,6 +202,12 @@ def generate_script_dummy(
         {"speaker": p2, "text": "また明日お会いしましょう。", "pause_ms": 500}
     )
 
+    # セグメント区切りインデックス
+    opening_lines = lines[:news_start]
+    news_lines = lines[news_start:letter_start]
+    letter_lines = lines[letter_start:-2]
+    ending_lines = lines[-2:]
+
     return {
         "show_id": show["show_id"],
         "episode_id": episode_id,
@@ -205,82 +218,27 @@ def generate_script_dummy(
             {
                 "id": "opening",
                 "name": "オープニング雑談",
-                "lines": lines[: 2 + (1 if carryover else 0)],
+                "lines": opening_lines,
             },
             {
                 "id": "news",
                 "name": "ニュース解説",
-                "lines": lines[2 + (1 if carryover else 0) : -4 if letters else -2],
+                "lines": news_lines,
             },
             {
                 "id": "letter_corner",
                 "name": "お便りコーナー",
-                "lines": (
-                    lines[-4:-2] if letters else []
-                ),
+                "lines": letter_lines,
             },
             {
                 "id": "ending",
                 "name": "エンディング",
-                "lines": lines[-2:],
+                "lines": ending_lines,
             },
         ],
         "source_articles": articles,
         "letters": letters,
     }
-
-
-def generate_dummy_mp3(output_path: Path, duration_sec: int = 10) -> None:
-    """Phase 2 ダミー: ffmpeg で無音 MP3 を生成。ffmpeg 未導入時は空ファイルを出力。"""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        subprocess.run(
-            [
-                "ffmpeg", "-y",
-                "-f", "lavfi",
-                "-i", f"anullsrc=r=44100:cl=stereo",
-                "-t", str(duration_sec),
-                "-q:a", "9",
-                str(output_path),
-            ],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        print(f"[OK] ダミーMP3生成: {output_path}")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print(f"[WARN] ffmpeg が利用できないため空ファイルを出力: {output_path}")
-        output_path.write_bytes(b"")
-
-
-def write_podcast_feed(show_id: str, episodes: list[dict], base_url: str) -> None:
-    """Phase 2: Podcast 互換 RSS (feeds/<show_id>.xml) を出力。"""
-    FEEDS_DIR.mkdir(parents=True, exist_ok=True)
-    feed_path = FEEDS_DIR / f"{show_id}.xml"
-
-    items_xml = "\n".join(
-        f"""  <item>
-    <title>{ep['title']}</title>
-    <description>{ep.get('summary','')}</description>
-    <pubDate>{ep['published_at']}</pubDate>
-    <enclosure url="{base_url}{ep['audio_url']}" length="0" type="audio/mpeg"/>
-    <guid>{ep['episode_id']}</guid>
-  </item>"""
-        for ep in episodes
-    )
-
-    xml = f"""<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
-  <channel>
-    <title>{show_id}</title>
-    <link>{base_url}</link>
-    <description>{show_id} ポッドキャストフィード</description>
-    <language>ja-JP</language>
-    {items_xml}
-  </channel>
-</rss>"""
-    feed_path.write_text(xml, encoding="utf-8")
-    print(f"[OK] Podcast RSS 出力: {feed_path}")
 
 
 def write_catalog(
@@ -290,7 +248,7 @@ def write_catalog(
     base_path: str,
     letters: list[dict],
 ) -> None:
-    """Phase 2: catalog.json を出力。letters 情報を含める。"""
+    """Phase 3: catalog.json を出力。letters 情報を含める。"""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     # 既存の catalog.json を読み込み、他番組の情報を保持する
@@ -336,7 +294,7 @@ def write_catalog(
 
 
 def rotate_episodes(show_id: str) -> None:
-    """Phase 2: 番組ごと最新 EPISODE_LIMIT 件より古い MP3 を削除。"""
+    """Phase 3: 番組ごと最新 EPISODE_LIMIT 件より古い MP3 を削除。"""
     show_audio_dir = AUDIO_DIR / show_id
     if not show_audio_dir.exists():
         return
@@ -393,18 +351,34 @@ def main() -> None:
     episode_id = script["episode_id"]
     published_at = now.strftime("%a, %d %b %Y %H:%M:%S GMT")
 
-    # MP3 生成（ダミー）
+    # --- 音声合成・音響処理（edge-tts + ffmpeg/pydub）---
+    all_lines = []
+    for seg in script["segments"]:
+        all_lines.extend(seg["lines"])
+
+    with tempfile.TemporaryDirectory(prefix=f"radio-{episode_id}-") as tmp_str:
+        tmp_dir = Path(tmp_str)
+        final_dir = AUDIO_DIR / show_id
+        final_mp3 = produce_final_audio(
+            lines=all_lines,
+            show=show,
+            episode_id=episode_id,
+            tmp_dir=tmp_dir,
+            final_dir=final_dir,
+        )
+
     mp3_filename = f"{episode_id}.mp3"
-    mp3_path = AUDIO_DIR / show_id / mp3_filename
-    generate_dummy_mp3(mp3_path, duration_sec=10)
+    # produce_final_audio は final_dir / f"{episode_id}.mp3" を出力するため、
+    # audio_url は最終出力パスから相対パスを構築
+    audio_url = f"audio/{show_id}/{mp3_filename}"
 
     # エピソードレコード
     episode_record = {
         "episode_id": episode_id,
         "title": script["title"],
-        "audio_url": f"audio/{show_id}/{mp3_filename}",
+        "audio_url": audio_url,
         "published_at": published_at,
-        "duration_sec": 10,
+        "duration_sec": 10,  # Phase 4 で実際の長さを取得する予定
         "summary": script["summary"],
         "script": script["segments"],
         "source_articles": script["source_articles"],
@@ -428,7 +402,7 @@ def main() -> None:
     # --- catalog.json / feed.xml 出力 ---
     episodes = [episode_record]
     write_catalog(show_id, show, episodes, args.base_path, letters)
-    write_podcast_feed(show_id, episodes, args.base_path)
+    write_podcast_feed(show_id, show, episodes, args.base_path)
 
     # --- お便り Issue へコメント投稿・Close ---
     if token and letters:
