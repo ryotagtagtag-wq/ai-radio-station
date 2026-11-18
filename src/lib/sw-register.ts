@@ -11,10 +11,13 @@ export function registerSW() {
   }
 
   const base = import.meta.env.BASE_URL || "./";
-  const swUrl = new URL("sw.js", base).href;
+  // URL コンストラクタは "./" や "/<repo>/" のような相対パスを base URL として
+  // 受け付けないため、文字列結合で sw.js へのパスを構築する。
+  const normalizedBase = base.replace(/\/+$/, "") + "/";
+  const swUrl = normalizedBase + "sw.js";
 
   navigator.serviceWorker
-    .register(swUrl, { scope: base })
+    .register(swUrl)
     .then((registration) => {
       console.log("[SW] 登録成功:", registration.scope);
     })
