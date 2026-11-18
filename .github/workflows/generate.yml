@@ -1,4 +1,4 @@
-name: AI Radio Generate
+name: AI Radio Generate & Deploy
 
 on:
   schedule:
@@ -17,8 +17,17 @@ on:
         required: false
         default: "./"
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  generate:
+  generate-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: チェックアウト
@@ -32,16 +41,23 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: 依存パッケージインストール
+      - name: Python 依存パッケージインストール
         run: |
           pip install -r backend/requirements.txt
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Node.js 依存パッケージインストール
+        run: npm ci
 
       - name: 生成対象番組一覧を決定
         id: matrix
         run: |
-          # workflow_dispatch 時は入力値、schedule 時は cron から番組を決定
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            # どの cron で起動したかは job 内で個別に判定するため、ここでは全番組を対象とする
             echo "show_ids=morning-show,evening-show" >> $GITHUB_OUTPUT
           else
             echo "show_ids=${{ github.event.inputs.show_ids }}" >> $GITHUB_OUTPUT
@@ -51,7 +67,7 @@ jobs:
         run: |
           IFS=',' read -ra IDS <<< "${{ steps.matrix.outputs.show_ids }}"
           for show_id in "${IDS[@]}"; do
-            show_id=$(echo "$show_id" | xargs)  # 前後空白除去
+            show_id=$(echo "$show_id" | xargs)
             echo "=== 生成開始: $show_id ==="
             python backend/main.py \
               --show-id "$show_id" \
@@ -76,3 +92,19 @@ jobs:
           git add output/ data/
           git commit -m "chore: generate radio episodes for ${{ steps.matrix.outputs.show_ids }}" || true
           git push
+
+      - name: Vite ビルド (ベースパス ./)
+        run: |
+          VITE_BASE="./" VITE_GITHUB_REPO="${{ github.repository }}" npm run build
+
+      - name: output/ を dist/ にコピー (catalog.json, feeds, audio)
+        run: |
+          cp -r output/* dist/
+
+      - name: アップロード artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+      - name: GitHub Pages デプロイ
+        uses: actions/deploy-pages@v4
