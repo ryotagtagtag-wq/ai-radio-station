@@ -7,16 +7,16 @@
     <docs>http://www.rssboard.org/rss-specification</docs>
     <generator>python-feedgen</generator>
     <language>ja-JP</language>
-    <lastBuildDate>Wed, 18 Nov 2026 22:23:22 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Nov 2026 22:53:14 +0000</lastBuildDate>
     <itunes:author>AI パーソナルラジオ局</itunes:author>
     <itunes:category text="ニュース"/>
     <itunes:explicit>no</itunes:explicit>
     <item>
       <title>2026年11月18日 モーニングAIラジオ</title>
       <description>モーニングAIラジオ の本日放送分です。</description>
-      <guid isPermaLink="false">20261118-222318-morning-show</guid>
-      <enclosure url="./audio/morning-show/20261118-222318-morning-show.mp3" length="0" type="audio/mpeg"/>
-      <pubDate>Wed, 18 Nov 2026 22:23:18 +0000</pubDate>
+      <guid isPermaLink="false">20261118-225310-morning-show</guid>
+      <enclosure url="./audio/morning-show/20261118-225310-morning-show.mp3" length="0" type="audio/mpeg"/>
+      <pubDate>Wed, 18 Nov 2026 22:53:10 +0000</pubDate>
       <itunes:duration>10</itunes:duration>
       <itunes:explicit>no</itunes:explicit>
     </item>

@@ -1,74 +1,7 @@
 {
-  "updated_at": "2026-11-18T22:23:27.395290+00:00",
+  "updated_at": "2026-11-18T22:53:14.248555+00:00",
   "base_path": "./",
   "shows": [
-    {
-      "show_id": "morning-show",
-      "title": "モーニングAIラジオ",
-      "description": "毎朝のニュースをAIパーソナリティがお届けするラジオ番組です。",
-      "feed_url": "./feeds/morning-show.xml",
-      "episodes": [
-        {
-          "episode_id": "20261118-222318-morning-show",
-          "title": "2026年11月18日 モーニングAIラジオ",
-          "audio_url": "audio/morning-show/20261118-222318-morning-show.mp3",
-          "published_at": "Wed, 18 Nov 2026 22:23:18 GMT",
-          "duration_sec": 10,
-          "summary": "モーニングAIラジオ の本日放送分です。",
-          "script": [
-            {
-              "id": "opening",
-              "name": "オープニング雑談",
-              "lines": [
-                {
-                  "speaker": "アキラ",
-                  "text": "おはようございます、アキラです。",
-                  "pause_ms": 400
-                },
-                {
-                  "speaker": "ミオ",
-                  "text": "そして ミオ です。モーニングAIラジオ へようこそ。",
-                  "pause_ms": 400
-                }
-              ]
-            },
-            {
-              "id": "news",
-              "name": "ニュース解説",
-              "lines": []
-            },
-            {
-              "id": "letter_corner",
-              "name": "お便りコーナー",
-              "lines": [
-                {
-                  "speaker": "アキラ",
-                  "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
-                  "pause_ms": 400
-                }
-              ]
-            },
-            {
-              "id": "ending",
-              "name": "エンディング",
-              "lines": [
-                {
-                  "speaker": "アキラ",
-                  "text": "本日はここまで。ありがとうございました。",
-                  "pause_ms": 500
-                },
-                {
-                  "speaker": "ミオ",
-                  "text": "また明日お会いしましょう。",
-                  "pause_ms": 500
-                }
-              ]
-            }
-          ],
-          "source_articles": []
-        }
-      ]
-    },
     {
       "show_id": "evening-show",
       "title": "イブニングAIラジオ",
@@ -126,6 +59,73 @@
                 },
                 {
                   "speaker": "ルナ",
+                  "text": "また明日お会いしましょう。",
+                  "pause_ms": 500
+                }
+              ]
+            }
+          ],
+          "source_articles": []
+        }
+      ]
+    },
+    {
+      "show_id": "morning-show",
+      "title": "モーニングAIラジオ",
+      "description": "毎朝のニュースをAIパーソナリティがお届けするラジオ番組です。",
+      "feed_url": "./feeds/morning-show.xml",
+      "episodes": [
+        {
+          "episode_id": "20261118-225310-morning-show",
+          "title": "2026年11月18日 モーニングAIラジオ",
+          "audio_url": "audio/morning-show/20261118-225310-morning-show.mp3",
+          "published_at": "Wed, 18 Nov 2026 22:53:10 GMT",
+          "duration_sec": 10,
+          "summary": "モーニングAIラジオ の本日放送分です。",
+          "script": [
+            {
+              "id": "opening",
+              "name": "オープニング雑談",
+              "lines": [
+                {
+                  "speaker": "アキラ",
+                  "text": "おはようございます、アキラです。",
+                  "pause_ms": 400
+                },
+                {
+                  "speaker": "ミオ",
+                  "text": "そして ミオ です。モーニングAIラジオ へようこそ。",
+                  "pause_ms": 400
+                }
+              ]
+            },
+            {
+              "id": "news",
+              "name": "ニュース解説",
+              "lines": []
+            },
+            {
+              "id": "letter_corner",
+              "name": "お便りコーナー",
+              "lines": [
+                {
+                  "speaker": "アキラ",
+                  "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
+                  "pause_ms": 400
+                }
+              ]
+            },
+            {
+              "id": "ending",
+              "name": "エンディング",
+              "lines": [
+                {
+                  "speaker": "アキラ",
+                  "text": "本日はここまで。ありがとうございました。",
+                  "pause_ms": 500
+                },
+                {
+                  "speaker": "ミオ",
                   "text": "また明日お会いしましょう。",
                   "pause_ms": 500
                 }
