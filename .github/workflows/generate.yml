@@ -1,0 +1,50 @@
+name: AI Radio Generate
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # モーニング番組 (毎日 07:00 UTC)
+  workflow_dispatch:
+    inputs:
+      show_id:
+        description: "生成対象の番組ID (shows/*.yaml の拡張子抜き)"
+        required: true
+        default: "morning-show"
+      base_path:
+        description: "フロントエンド連携用ベースパス (./ または /<repo>/)"
+        required: false
+        default: "./"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 依存パッケージインストール
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: 生成パイプライン実行
+        run: |
+          python backend/main.py \
+            --show-id "${{ github.event.inputs.show_id || 'morning-show' }}" \
+            --base-path "${{ github.event.inputs.base_path || './' }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 生成物をコミット・プッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/ data/
+          git commit -m "chore: generate radio episode for ${{ github.event.inputs.show_id || 'morning-show' }}" || true
+          git push

@@ -1,0 +1,20 @@
+show_id: morning-show
+title: モーニングAIラジオ
+description: 毎朝のニュースをAIパーソナリティがお届けするラジオ番組です。
+rss_feeds:
+  - https://example.com/rss
+personalities:
+  - name: アキラ
+    voice_id: ja-JP-NanamiNeural
+    persona: 元気で明るいニュースキャスター。朝の挨拶と軽快な雑談を担当。
+  - name: ミオ
+    voice_id: ja-JP-AoiNeural
+    persona: 落ち着いたアナウンサー。ニュース解説とお便りコーナーを担当。
+talk_ratio: 0.3
+bgm:
+  file: assets/bgm/lofi.mp3
+  volume_db: -20
+sfx:
+  jingle: assets/sfx/jingle.mp3
+schedule:
+  cron: "0 7 * * *"
