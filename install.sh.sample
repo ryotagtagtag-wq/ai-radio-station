@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# install.sh.sample
+# Reference sample for install.sh customization.
+#
+# Example: Change Python version
+#   uv python install 3.10
+#
+# Example: Change install directory
+#   INSTALL_DIR="$HOME/ai-radio"
