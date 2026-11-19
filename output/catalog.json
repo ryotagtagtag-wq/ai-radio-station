@@ -1,74 +1,7 @@
 {
-  "updated_at": "2026-11-18T22:53:14.248555+00:00",
+  "updated_at": "2026-11-19T16:15:21.273917+00:00",
   "base_path": "./",
   "shows": [
-    {
-      "show_id": "evening-show",
-      "title": "イブニングAIラジオ",
-      "description": "その日の出来事をAIパーソナリティが振り返る夕方のラジオ番組です。",
-      "feed_url": "./feeds/evening-show.xml",
-      "episodes": [
-        {
-          "episode_id": "20261118-222323-evening-show",
-          "title": "2026年11月18日 イブニングAIラジオ",
-          "audio_url": "audio/evening-show/20261118-222323-evening-show.mp3",
-          "published_at": "Wed, 18 Nov 2026 22:23:23 GMT",
-          "duration_sec": 10,
-          "summary": "イブニングAIラジオ の本日放送分です。",
-          "script": [
-            {
-              "id": "opening",
-              "name": "オープニング雑談",
-              "lines": [
-                {
-                  "speaker": "ソラ",
-                  "text": "おはようございます、ソラです。",
-                  "pause_ms": 400
-                },
-                {
-                  "speaker": "ルナ",
-                  "text": "そして ルナ です。イブニングAIラジオ へようこそ。",
-                  "pause_ms": 400
-                }
-              ]
-            },
-            {
-              "id": "news",
-              "name": "ニュース解説",
-              "lines": []
-            },
-            {
-              "id": "letter_corner",
-              "name": "お便りコーナー",
-              "lines": [
-                {
-                  "speaker": "ソラ",
-                  "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
-                  "pause_ms": 400
-                }
-              ]
-            },
-            {
-              "id": "ending",
-              "name": "エンディング",
-              "lines": [
-                {
-                  "speaker": "ソラ",
-                  "text": "本日はここまで。ありがとうございました。",
-                  "pause_ms": 500
-                },
-                {
-                  "speaker": "ルナ",
-                  "text": "また明日お会いしましょう。",
-                  "pause_ms": 500
-                }
-              ]
-            }
-          ],
-          "source_articles": []
-        }
-      ]
-    },
     {
       "show_id": "morning-show",
       "title": "モーニングAIラジオ",
@@ -76,10 +9,10 @@
       "feed_url": "./feeds/morning-show.xml",
       "episodes": [
         {
-          "episode_id": "20261118-225310-morning-show",
-          "title": "2026年11月18日 モーニングAIラジオ",
-          "audio_url": "audio/morning-show/20261118-225310-morning-show.mp3",
-          "published_at": "Wed, 18 Nov 2026 22:53:10 GMT",
+          "episode_id": "20261119-161514-morning-show",
+          "title": "2026年11月19日 モーニングAIラジオ",
+          "audio_url": "audio/morning-show/20261119-161514-morning-show.mp3",
+          "published_at": "Thu, 19 Nov 2026 16:15:14 GMT",
           "duration_sec": 10,
           "summary": "モーニングAIラジオ の本日放送分です。",
           "script": [
@@ -126,6 +59,73 @@
                 },
                 {
                   "speaker": "ミオ",
+                  "text": "また明日お会いしましょう。",
+                  "pause_ms": 500
+                }
+              ]
+            }
+          ],
+          "source_articles": []
+        }
+      ]
+    },
+    {
+      "show_id": "evening-show",
+      "title": "イブニングAIラジオ",
+      "description": "その日の出来事をAIパーソナリティが振り返る夕方のラジオ番組です。",
+      "feed_url": "./feeds/evening-show.xml",
+      "episodes": [
+        {
+          "episode_id": "20261119-161517-evening-show",
+          "title": "2026年11月19日 イブニングAIラジオ",
+          "audio_url": "audio/evening-show/20261119-161517-evening-show.mp3",
+          "published_at": "Thu, 19 Nov 2026 16:15:17 GMT",
+          "duration_sec": 10,
+          "summary": "イブニングAIラジオ の本日放送分です。",
+          "script": [
+            {
+              "id": "opening",
+              "name": "オープニング雑談",
+              "lines": [
+                {
+                  "speaker": "ソラ",
+                  "text": "おはようございます、ソラです。",
+                  "pause_ms": 400
+                },
+                {
+                  "speaker": "ルナ",
+                  "text": "そして ルナ です。イブニングAIラジオ へようこそ。",
+                  "pause_ms": 400
+                }
+              ]
+            },
+            {
+              "id": "news",
+              "name": "ニュース解説",
+              "lines": []
+            },
+            {
+              "id": "letter_corner",
+              "name": "お便りコーナー",
+              "lines": [
+                {
+                  "speaker": "ソラ",
+                  "text": "本日はお便りはありませんでした。またのお便りをお待ちしています。",
+                  "pause_ms": 400
+                }
+              ]
+            },
+            {
+              "id": "ending",
+              "name": "エンディング",
+              "lines": [
+                {
+                  "speaker": "ソラ",
+                  "text": "本日はここまで。ありがとうございました。",
+                  "pause_ms": 500
+                },
+                {
+                  "speaker": "ルナ",
                   "text": "また明日お会いしましょう。",
                   "pause_ms": 500
                 }
