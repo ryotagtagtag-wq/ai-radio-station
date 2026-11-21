@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-21T15:03:06.227718+00:00",
+  "updated_at": "2026-11-21T22:38:15.610301+00:00",
   "base_path": "./",
   "shows": [
     {
@@ -9,10 +9,10 @@
       "feed_url": "./feeds/morning-show.xml",
       "episodes": [
         {
-          "episode_id": "20261121-150258-morning-show",
+          "episode_id": "20261121-223808-morning-show",
           "title": "2026年11月21日 モーニングAIラジオ",
-          "audio_url": "audio/morning-show/20261121-150258-morning-show.mp3",
-          "published_at": "Sat, 21 Nov 2026 15:02:58 GMT",
+          "audio_url": "audio/morning-show/20261121-223808-morning-show.mp3",
+          "published_at": "Sat, 21 Nov 2026 22:38:08 GMT",
           "duration_sec": 10,
           "summary": "モーニングAIラジオ の本日放送分です。",
           "script": [
@@ -76,10 +76,10 @@
       "feed_url": "./feeds/evening-show.xml",
       "episodes": [
         {
-          "episode_id": "20261121-150302-evening-show",
+          "episode_id": "20261121-223812-evening-show",
           "title": "2026年11月21日 イブニングAIラジオ",
-          "audio_url": "audio/evening-show/20261121-150302-evening-show.mp3",
-          "published_at": "Sat, 21 Nov 2026 15:03:02 GMT",
+          "audio_url": "audio/evening-show/20261121-223812-evening-show.mp3",
+          "published_at": "Sat, 21 Nov 2026 22:38:12 GMT",
           "duration_sec": 10,
           "summary": "イブニングAIラジオ の本日放送分です。",
           "script": [
